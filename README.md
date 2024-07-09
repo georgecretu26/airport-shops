@@ -89,6 +89,12 @@ Run the application:
 dotnet run
 ```
 
+### Credentials for test
+```
+admin / password
+manager / password
+```
+
 ### Seeding the Database
 
 The database is automatically seeded with initial data when the application is first run. This includes roles, users, and facilities.
