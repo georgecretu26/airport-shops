@@ -53,7 +53,7 @@ npm install -g pnpm
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-repo/airport-management.git
+git clone https://github.com/georgecretu26/airport-shops.git
 cd airport-management
 ```
 
