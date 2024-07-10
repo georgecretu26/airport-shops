@@ -1,46 +1,61 @@
-# Stage 1: Build the application
-FROM node:20 AS build
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-# Set the working directory
+# This Dockerfile is copy-pasted into our main docs at /docs/handbook/deploying-with-docker.
+# Make sure you update both files!
+
+FROM base AS builder
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+RUN apk update
+# Set working directory
+WORKDIR /app
+RUN pnpm install turbo --global
+COPY . .
+RUN turbo prune frontend --docker
+
+# Add lockfile and package.json's of isolated subworkspace
+FROM base AS installer
+RUN apk add --no-cache libc6-compat
+RUN apk update
 WORKDIR /app
 
-# Copy the package.json and lockfile
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY pnpm-workspace.yaml ./
-
-# Install pnpm and turbo globally
-RUN npm install -g pnpm turbo
-RUN corepack enable pnpm
-RUN pnpm config set store-dir ~/.pnpm-store
-
-# Install dependencies
+# First install the dependencies (as they change less often)
+COPY .gitignore .gitignore
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install
 
-# Copy the rest of the application source code
-COPY . .
+# Build the project
+COPY --from=builder /app/out/full/ .
+COPY turbo.json turbo.json
 
-# Build the Next.js application
-RUN pnpm run build
+# Uncomment and use build args to enable remote caching
+# ARG TURBO_TEAM
+# ENV TURBO_TEAM=$TURBO_TEAM
 
-# Stage 2: Run the application
-FROM node:20 AS run
+# ARG TURBO_TOKEN
+# ENV TURBO_TOKEN=$TURBO_TOKEN
 
-# Install pnpm globally
-RUN npm install -g pnpm
+RUN pnpm turbo build --filter=frontend...
 
-# Set the working directory
+FROM base AS runner
 WORKDIR /app
 
-# Copy the build output from the previous stage
-COPY --from=build /app ./
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+USER nextjs
 
-# Install only production dependencies
-RUN pnpm install --prod
+COPY --from=installer /app/apps/frontend/next.config.mjs .
+COPY --from=installer /app/apps/frontend/package.json .
 
-# Expose the port that Next.js will run on
-EXPOSE 3000
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/public ./apps/frontend/public
 
-# Start the Next.js application
-RUN ls -la
-CMD ["pnpm", "start", "--filter", "./apps/frontend"]
+CMD node apps/frontend/server.js
