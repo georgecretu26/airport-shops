@@ -1,4 +1,4 @@
-@backend_HostAddress = http://localhost:5051
+@backend_HostAddress = http://localhost:3001
 
 GET {{backend_HostAddress}}/facilities/
 Accept: application/json
