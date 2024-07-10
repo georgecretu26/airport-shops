@@ -102,7 +102,7 @@ The database is automatically seeded with initial data when the application is f
 #### Running the Application
 
 - Frontend: The frontend development server will run on http://localhost:3000.
-- Backend: The backend server will run on http://localhost:5051.
+- Backend: The backend server will run on http://localhost:3001.
 
 ## How to Use the Application
 
