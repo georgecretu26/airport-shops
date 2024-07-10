@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Http;
-using System.Linq;
-using System.Threading.Tasks;
-
 using backend.Data;
 
+namespace backend.Middleware;
 public class AuthorizationMiddleware
 {
     private readonly RequestDelegate _next;
