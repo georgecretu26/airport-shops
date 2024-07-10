@@ -1,5 +1,3 @@
-.git
-.results
-scripts
-*Dockerfile*
-.env
+bin/
+obj/
+out/
