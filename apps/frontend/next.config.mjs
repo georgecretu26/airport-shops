@@ -4,6 +4,9 @@ const nextConfig = {
   images: {
     domains: ["fakeimg.pl"],
   },
+  env: {
+    API_URL: process.env.API_URL,
+  },
 };
 
 export default nextConfig;
