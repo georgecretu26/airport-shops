@@ -4,6 +4,8 @@
 
 The Airport Shopping and Dining Management Application is a web-based platform that allows users to view and manage various shops and dining facilities within an airport. The application provides two main sections: Shopping and Dining. Users can view detailed information about each facility, search for facilities, and administrators can manage the facilities and reset the database to its initial state.
 
+The web application is deployed on AWS and can be visualised https://airport-shops.georgecretu.dev/ 
+
 ## Features
 
 ### User Features
@@ -127,7 +129,6 @@ The database is automatically seeded with initial data when the application is f
 
 ## Future Improvements
 
-- Backend Deployment: Configure and test backend deployment using cloud services like AWS or Azure.
 - Enhanced Security: Implement JWT authentication for secure API access.
 - Scalability: Optimize the application for scalability, considering cloud-based database solutions.
 - User Interface: Improve the user interface and experience with more detailed facility information and better design.
